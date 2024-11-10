@@ -1,0 +1,92 @@
+from datetime import datetime
+
+# Função para validar se a data de validade é válida
+def validar_data(data_str):
+    try:
+        data = datetime.strptime(data_str, "%d/%m/%Y")
+        if data < datetime.today():
+            print("A data de validade não pode ser anterior ao dia de hoje.")
+            return None
+        return data
+    except ValueError:
+        print("Data inválida! Use o formato dd/mm/aaaa.")
+        return None
+
+# Função para exibir o estoque
+def exibir_estoque():
+    if not estoque:
+        print("Estoque vazio!")
+    else:
+        print("\nEstoque Atual:")
+        for item, dados in estoque.items():
+            validade = dados['validade'].strftime("%d/%m/%Y") if dados['validade'] else "Não especificada"
+            print(f"Item: {item}")
+            print(f"  Marca: {dados['marca']}")
+            print(f"  Lote: {dados['lote']}")
+            print(f"  Quantidade: {dados['quantidade']} {dados['unidade']}")
+            print(f"  Validade: {validade}")
+            print("-" * 30)
+
+# Função para adicionar itens no estoque
+def adicionar_item():
+    item = input("Digite o nome do item: ")
+    marca = input(f"Digite a marca de {item}: ")
+    lote = input(f"Digite o lote de {item}: ")
+    unidade = input(f"Digite a unidade de medida (kg, g, l): ").lower()
+    quantidade = float(input(f"Digite a quantidade de {item}: "))
+    validade = None
+    validade_str = input(f"Digite a validade de {item} (dd/mm/aaaa), ou deixe em branco para não definir: ")
+    if validade_str:
+        validade = validar_data(validade_str)
+
+    estoque[item] = {
+        'marca': marca,
+        'lote': lote,
+        'quantidade': quantidade,
+        'unidade': unidade,
+        'validade': validade
+    }
+    
+    print(f"{quantidade} {unidade} de {item} ({marca}, Lote: {lote}) adicionados ao estoque.")
+
+# Função para remover itens do estoque
+def remover_item():
+    item = input("Digite o nome do item que deseja remover: ")
+    
+    if item in estoque:
+        quantidade = float(input(f"Digite a quantidade de {item} a ser removida: "))
+        if estoque[item]['quantidade'] >= quantidade:
+            estoque[item]['quantidade'] -= quantidade
+            print(f"{quantidade} {estoque[item]['unidade']} de {item} removidas do estoque.")
+            if estoque[item]['quantidade'] == 0:
+                del estoque[item]  # Remove o item se a quantidade for zero
+        else:
+            print(f"Não há quantidade suficiente de {item} para remover.")
+    else:
+        print(f"O item {item} não existe no estoque.")
+
+# Função principal para o controle de estoque
+def controle_estoque():
+    while True:
+        print("\nControle de Estoque")
+        print("1. Exibir Estoque")
+        print("2. Adicionar Item")
+        print("3. Remover Item")
+        print("4. Sair")
+        
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == "1":
+            exibir_estoque()
+        elif opcao == "2":
+            adicionar_item()
+        elif opcao == "3":
+            remover_item()
+        elif opcao == "4":
+            print("Saindo do controle de estoque. Até logo!")
+            break
+        else:
+            print("Opção inválida! Tente novamente.")
+
+# Criar um dicionário para armazenar os itens com dados adicionais
+estoque = {}
